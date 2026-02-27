@@ -1,6 +1,7 @@
 package com.senai.smartfila.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,8 +18,8 @@ public class AlunoService {
 		return repository.findAll();
 	}
 
-	public Aluno buscarPorId(Long id) {
-		return repository.findById(id).orElse(null);
+	public Optional<Aluno> buscarPorId(Long id) {
+		return repository.findById(id);
 	}
 
 	public Aluno salvar(Aluno aluno) {
@@ -26,13 +27,23 @@ public class AlunoService {
 	}
 
 	public Aluno atualizar(Long id, Aluno dados) {
-		Aluno existente = buscarPorId(id);
-		existente.setNome(dados.getNome());
-		existente.setTurma(dados.getTurma());
-		existente.setRa(dados.getRa());
-		existente.setDocumentos(dados.getDocumentos());
+		Optional<Aluno> alunoExistente = buscarPorId(id);
 		
-		return repository.save(existente);
+		if (alunoExistente.isPresent()) {
+			
+			Aluno existente = alunoExistente.get();
+			existente.setNome(dados.getNome());
+			existente.setTurma(dados.getTurma());
+			existente.setRa(dados.getRa());
+			
+			if(dados.getDocumentos() != null) {
+				
+				existente.setDocumentos(dados.getDocumentos());
+			}
+			return repository.save(existente);
+		}
+		return null;
+		
 	}
 
 	public void deletar(Long id) {
